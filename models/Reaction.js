@@ -9,11 +9,15 @@ const reactionSchema = new Schema(
     reactionBody: {
       type: String,
       required: true,
-      maxlength: 25,
+      maxlength: 280,
+    },
+    username: {
+      type: String,
+      required: true,
     },
     createdAt: {
       type: Date,
-      default: Date.now,
+      get: (timestamp) => new Date(timestamp).toLocaleDateString(),
     },
   },
   {
@@ -24,4 +28,4 @@ const reactionSchema = new Schema(
   }
 );
 
-module.exports = Reaction;
+module.exports = reactionSchema;
