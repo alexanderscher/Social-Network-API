@@ -23,19 +23,13 @@ module.exports = {
   },
 
   updateUser(req, res) {
-    console.log(
-      `userID: ${req.params.userID}, update: ${JSON.stringify(req.body)}`
-    );
-    User.findOneAndUpdate(
-      { _id: req.params.userID },
-      { $set: req.body },
-      { new: true }
-    )
-      .then((user) =>
-        !user
-          ? res.status(404).json({ message: "No user with that ID" })
-          : res.json({ message: "User has been updated!", user })
-      )
+    User.findOneAndUpdate(req.params.id, req.body, { new: true })
+      .then((user) => {
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user);
+      })
       .catch((err) => res.status(500).json(err));
   },
   deleteUser(req, res) {
