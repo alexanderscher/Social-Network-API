@@ -1,4 +1,4 @@
-const { User, Application } = require("../models");
+const { User, Thought } = require("../models");
 
 module.exports = {
   getUsers(req, res) {
@@ -21,14 +21,31 @@ module.exports = {
       .then((user) => res.json(user))
       .catch((err) => res.status(500).json(err));
   },
+
+  updateUser(req, res) {
+    console.log(
+      `userID: ${req.params.userID}, update: ${JSON.stringify(req.body)}`
+    );
+    User.findOneAndUpdate(
+      { _id: req.params.userID },
+      { $set: req.body },
+      { new: true }
+    )
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: "No user with that ID" })
+          : res.json({ message: "User has been updated!", user })
+      )
+      .catch((err) => res.status(500).json(err));
+  },
   deleteUser(req, res) {
     User.findOneAndDelete({ _id: req.params.userId })
       .then((user) =>
         !user
           ? res.status(404).json({ message: "No user with that ID" })
-          : Application.deleteMany({ _id: { $in: user.applications } })
+          : Thought.deleteMany({ _id: { $in: user.thoughts } })
       )
-      .then(() => res.json({ message: "User and associated apps deleted!" }))
+      .then(() => res.json({ message: "User and thoughts deleted!" }))
       .catch((err) => res.status(500).json(err));
   },
 };
