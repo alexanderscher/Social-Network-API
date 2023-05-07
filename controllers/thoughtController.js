@@ -21,4 +21,21 @@ module.exports = {
       .then((thought) => res.json(thought))
       .catch((err) => res.status(500).json(err));
   },
+  deleteThought(req, res) {
+    Thought.findOneAndDelete({ _id: req.params.thoughtId }).then((thought) =>
+      !thought
+        ? res.status(404).json({ message: "No user with that ID" })
+        : res.status(200).json("Thought deleted")
+    );
+  },
+  updateThought(req, res) {
+    Thought.findOneAndUpdate(req.params.id, req.body, { new: true })
+      .then((thought) => {
+        if (!thought) {
+          return res.status(404).json({ message: "Thought not found" });
+        }
+        res.json(thought);
+      })
+      .catch((err) => console.log(err));
+  },
 };
