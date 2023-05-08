@@ -2,7 +2,7 @@ const { User, Thought } = require("../models");
 
 module.exports = {
   getUsers(req, res) {
-    User.find()
+    User.find({})
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
@@ -42,19 +42,32 @@ module.exports = {
       .then(() => res.json({ message: "User and thoughts deleted!" }))
       .catch((err) => res.status(500).json(err));
   },
-
   addFriend(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
-      { $addToSet: { friends: req.body.friendId } },
+      { $addToSet: { friends: req.params.friendId } },
       { new: true }
     )
       .then((user) => {
         if (!user) {
-          return res.status(404).json({ message: "User not found" });
+          return res.status(404).json({ message: "Could not add friend" });
         }
         res.json(user);
       })
       .catch((err) => res.status(500).json(err));
+  },
+  deleteFriend(req, res) {
+    User.findOneAndDelete(
+      { _id: req.params.userId, friends: req.params.friendId },
+      (err, user) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        if (!user) {
+          return res.status(404).json({ message: "Could not delete friend" });
+        }
+        res.json(user);
+      }
+    );
   },
 };
