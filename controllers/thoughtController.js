@@ -1,4 +1,4 @@
-const { Thought } = require("../models");
+const { Thought, User } = require("../models");
 
 module.exports = {
   getThoughts(req, res) {
@@ -18,8 +18,23 @@ module.exports = {
   },
   createThought(req, res) {
     Thought.create(req.body)
-      .then((thought) => res.json(thought))
-      .catch((err) => res.status(500).json(err));
+      .then((thought) => {
+        return User.findByIdAndUpdate(
+          req.body.userId,
+          { $push: { thoughts: thought._id } },
+          { new: true }
+        );
+      })
+      .then((updatedUser) => {
+        if (!updatedUser) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        res.json(updatedUser);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
+      });
   },
   deleteThought(req, res) {
     Thought.findOneAndDelete({ _id: req.params.thoughtId }).then((thought) =>
@@ -36,6 +51,6 @@ module.exports = {
         }
         res.json(thought);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => res.status(500).json(err));
   },
 };
