@@ -1,4 +1,5 @@
 const { Thought, User } = require("../models");
+const { ObjectId } = require("mongoose").Types;
 
 module.exports = {
   getThoughts(req, res) {
@@ -50,6 +51,36 @@ module.exports = {
           return res.status(404).json({ message: "Thought not found" });
         }
         res.json(thought);
+      })
+      .catch((err) => res.status(500).json(err));
+  },
+  addReaction(req, res) {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $addToSet: { reactions: new ObjectId(req.body.reactionsID) } },
+      { new: true }
+    )
+      .then((reaction) => {
+        if (!reaction) {
+          return res.status(404).json({ message: "Thought not found" });
+        }
+        res.json(reaction);
+      })
+      .catch((err) => res.status(500).json(err));
+  },
+  deleteReaction(req, res) {
+    Thought.findOneAndDelete(
+      {
+        _id: req.params.thoughtId,
+        $pull: { reactions: new ObjectId(req.body.reactionsID) },
+      },
+      { new: true }
+    )
+      .then((reaction) => {
+        if (!reaction) {
+          return res.status(404).json({ message: "Thought not found" });
+        }
+        res.json({ message: "Reaction Deleted" });
       })
       .catch((err) => res.status(500).json(err));
   },
